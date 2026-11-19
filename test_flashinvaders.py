@@ -3,7 +3,7 @@ import urllib.request
 
 URL = "https://www.space-invaders.com/flashinvaders/flashes/"
 
-print("Test de connexion à FlashInvaders...")
+print("Connexion à FlashInvaders...")
 
 request = urllib.request.Request(
     URL,
@@ -13,25 +13,21 @@ request = urllib.request.Request(
     }
 )
 
-try:
-    with urllib.request.urlopen(request, timeout=30) as response:
-        status = response.status
-        content = response.read().decode("utf-8")
+with urllib.request.urlopen(request, timeout=30) as response:
+    content = response.read().decode("utf-8")
+    print("HTTP Status :", response.status)
 
-    print("HTTP Status :", status)
-    print("Taille de la réponse :", len(content))
+data = json.loads(content)
+events = data.get("without_paris", [])
 
-    data = json.loads(content)
-    events = data.get("without_paris", [])
+print("Taille de la réponse :", len(content))
+print("Nombre d'événements :", len(events))
 
-    print("Nombre d'événements without_paris :", len(events))
+if len(events) != 300:
+    raise ValueError("Nombre d'événements inattendu")
 
-    if len(events) == 300:
-        print("RESULTAT : SUCCES")
-        print("Premier événement :", json.dumps(events[0], ensure_ascii=False))
-    else:
-        print("RESULTAT : ECHEC - nombre d'événements inattendu")
+with open("flashes.json", "w", encoding="utf-8") as file:
+    json.dump(data, file, ensure_ascii=False)
 
-except Exception as error:
-    print("RESULTAT : ECHEC")
-    print("Erreur :", str(error))
+print("RESULTAT : SUCCES")
+print("Fichier flashes.json créé")
