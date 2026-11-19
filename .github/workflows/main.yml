@@ -3,6 +3,9 @@ name: FlashInvaders Connection Test
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   test-connection:
     runs-on: ubuntu-latest
@@ -18,3 +21,15 @@ jobs:
 
       - name: Run FlashInvaders connection test
         run: python test_flashinvaders.py
+
+      - name: Publish JSON file
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add flashes.json
+          if git diff --cached --quiet; then
+            echo "No changes to publish"
+          else
+            git commit -m "Update FlashInvaders data"
+            git push
+          fi
